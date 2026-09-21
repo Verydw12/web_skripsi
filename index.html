@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="id">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+        <title>Analisis Aksesibilitas dan Kesesuaian Lokasi Fasilitas Pendidikan Jenjang SMA/Sederajat</title>
+        <style>
+            :root{
+                --ink: #142420;
+                --ink-soft: #1c2f29;
+                --paper: #fbfbf9;
+                --line: #dde1dc;
+                --text: #1b2420;
+                --text-muted: #61706a;
+                --accent: #2b6e63;
+                --accent-warm: #c98a2b;
+                --radius: 10px;
+                --topbar-h: 64px;
+                --sidebar-w: 320px;
+            }
+            *{ box-sizing: border-box; }
+            html, body{
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                width: 100%;
+                overflow: hidden;
+                background: var(--paper);
+                color: var(--text);
+                font-family: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+            }
+
+            /* ---------- layout shell ---------- */
+            #app{
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                width: 100vw;
+            }
+
+            #topbar{
+                flex: 0 0 var(--topbar-h);
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                background: var(--ink);
+                color: #f2f5f3;
+                padding: 0 18px;
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+                z-index: 20;
+            }
+            #menuToggle{
+                display: none;
+                background: transparent;
+                border: 1px solid rgba(255,255,255,0.25);
+                color: #f2f5f3;
+                border-radius: 8px;
+                width: 36px;
+                height: 36px;
+                font-size: 16px;
+                cursor: pointer;
+                flex: 0 0 auto;
+            }
+            #topbar h1{
+                font-family: "Source Serif 4", Georgia, serif;
+                font-weight: 600;
+                font-size: 17px;
+                line-height: 1.25;
+                margin: 0;
+                letter-spacing: 0.1px;
+            }
+            #topbar p{
+                margin: 0;
+                font-size: 12px;
+                color: #b9c6c1;
+            }
+            #topbarText{ min-width: 0; overflow: hidden; }
+            #topbarText h1, #topbarText p{
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+            }
+
+            #body{
+                flex: 1 1 auto;
+                display: flex;
+                min-height: 0;
+            }
+
+            /* ---------- sidebar ---------- */
+            #sidebar{
+                flex: 0 0 var(--sidebar-w);
+                background: var(--paper);
+                border-right: 1px solid var(--line);
+                display: flex;
+                flex-direction: column;
+                overflow-y: auto;
+                z-index: 15;
+            }
+            .side-section{
+                padding: 16px 18px;
+                border-bottom: 1px solid var(--line);
+            }
+            .side-eyebrow{
+                font-size: 11px;
+                color: var(--text-muted);
+                margin: 0 0 10px 0;
+            }
+            .layer-bar{
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                width: 100%;
+                text-align: left;
+                background: #fff;
+                border: 1px solid var(--line);
+                border-radius: var(--radius);
+                padding: 11px 12px;
+                margin-bottom: 8px;
+                cursor: pointer;
+                font-family: inherit;
+                font-size: 13.5px;
+                color: var(--text);
+                transition: border-color .15s ease, background .15s ease;
+            }
+            .layer-bar:last-child{ margin-bottom: 0; }
+            .layer-bar:hover{ border-color: var(--accent); }
+            .layer-bar.active{
+                background: var(--ink-soft);
+                border-color: var(--ink-soft);
+                color: #fff;
+            }
+            .layer-bar .dot{
+                flex: 0 0 8px;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background: var(--line);
+            }
+            .layer-bar.active .dot{ background: var(--accent-warm); }
+            .layer-bar .txt strong{
+                display: block;
+                font-weight: 600;
+                font-size: 13.5px;
+            }
+            .layer-bar .txt span{
+                display: block;
+                font-size: 11.5px;
+                color: var(--text-muted);
+                margin-top: 1px;
+            }
+            .layer-bar.active .txt span{ color: #c7d3ce; }
+
+            #legendBox{
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+            .legend-row{
+                display: flex;
+                align-items: center;
+                gap: 9px;
+                font-size: 12.5px;
+                color: var(--text);
+            }
+            .legend-swatch{
+                flex: 0 0 14px;
+                width: 14px;
+                height: 14px;
+                border-radius: 3px;
+                border: 1px solid rgba(0,0,0,0.25);
+            }
+
+            .toggle-row{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 13px;
+            }
+            .switch{
+                position: relative;
+                width: 38px;
+                height: 21px;
+                flex: 0 0 auto;
+            }
+            .switch input{ opacity:0; width:0; height:0; }
+            .slider{
+                position: absolute;
+                cursor: pointer;
+                inset: 0;
+                background: #cfd6d2;
+                border-radius: 999px;
+                transition: .15s;
+            }
+            .slider:before{
+                content:"";
+                position: absolute;
+                width: 15px; height: 15px;
+                left: 3px; top: 3px;
+                background: #fff;
+                border-radius: 50%;
+                transition: .15s;
+            }
+            .switch input:checked + .slider{ background: var(--accent); }
+            .switch input:checked + .slider:before{ transform: translateX(17px); }
+
+            #sidebar .footnote{
+                margin-top: auto;
+                padding: 14px 18px;
+                font-size: 11px;
+                color: var(--text-muted);
+                border-top: 1px solid var(--line);
+            }
+
+            /* ---------- map ---------- */
+            #mapWrap{
+                position: relative;
+                flex: 1 1 auto;
+                min-width: 0;
+            }
+            #map{
+                width: 100%;
+                height: 100%;
+                background: #dfe6e2;
+            }
+
+            /* leaflet control tweaks */
+            .leaflet-popup-content-wrapper{
+                border-radius: 8px;
+            }
+            .leaflet-popup-content table{
+                border-collapse: collapse;
+                font-size: 12.5px;
+            }
+            .leaflet-popup-content th, .leaflet-popup-content td{
+                padding: 3px 8px 3px 0;
+                text-align: left;
+                vertical-align: top;
+            }
+            .leaflet-popup-content th{
+                color: var(--text-muted);
+                font-weight: 500;
+                white-space: nowrap;
+            }
+
+            /* ---------- responsive ---------- */
+            @media (max-width: 860px){
+                :root{ --sidebar-w: 280px; }
+                #menuToggle{ display: inline-flex; align-items:center; justify-content:center; }
+                #sidebar{
+                    position: fixed;
+                    top: var(--topbar-h);
+                    bottom: 0;
+                    left: 0;
+                    width: var(--sidebar-w);
+                    box-shadow: 2px 0 18px rgba(0,0,0,0.18);
+                    transform: translateX(-100%);
+                    transition: transform .2s ease;
+                }
+                #app.sidebar-open #sidebar{ transform: translateX(0); }
+                #app.sidebar-open #scrim{ display: block; }
+                #scrim{
+                    display: none;
+                    position: fixed;
+                    top: var(--topbar-h); left:0; right:0; bottom:0;
+                    background: rgba(10,15,13,0.35);
+                    z-index: 14;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <div id="topbar">
+                <button id="menuToggle" aria-label="Buka lapisan">☰</button>
+                <div id="topbarText">
+                    <h1>Aksesibilitas &amp; Kesesuaian Lokasi SMA</h1>
+                    <p>Peta interaktif tiga hasil analisis spasial</p>
+                </div>
+            </div>
+            <div id="body">
+                <div id="scrim"></div>
+                <aside id="sidebar">
+                    <div class="side-section">
+                        <p class="side-eyebrow">Lapisan analisis</p>
+                        <button class="layer-bar" data-layer="aksesibilitas">
+                            <span class="dot"></span>
+                            <span class="txt">
+                                <strong>Aksesibilitas (E2SFCA)</strong>
+                                <span>Indeks jangkauan layanan SMA per desa</span>
+                            </span>
+                        </button>
+                        <button class="layer-bar" data-layer="kebijakan">
+                            <span class="dot"></span>
+                            <span class="txt">
+                                <strong>Kebijakan Lokasi SMA</strong>
+                                <span>Rekomendasi tindakan per desa</span>
+                            </span>
+                        </button>
+                        <button class="layer-bar" data-layer="kesesuaian">
+                            <span class="dot"></span>
+                            <span class="txt">
+                                <strong>Kesesuaian Lahan</strong>
+                                <span>Kelayakan lokasi pembangunan sekolah baru</span>
+                            </span>
+                        </button>
+                    </div>
+                    <div class="side-section">
+                        <p class="side-eyebrow" id="legendTitle">Legenda</p>
+                        <div id="legendBox"></div>
+                    </div>
+                    <div class="side-section">
+                        <div class="toggle-row">
+                            <span>Citra satelit (Google Hybrid)</span>
+                            <label class="switch">
+                                <input type="checkbox" id="basemapToggle" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="footnote">Klik sebuah wilayah pada peta untuk melihat rincian datanya.</div>
+                </aside>
+                <div id="mapWrap">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/leaflet.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/Hasil_Aksesibilitas_E2SFCA_1.js"></script>
+        <script src="data/Kebijakan_Lokasi_SMA_Desa_2.js"></script>
+        <script src="data/desa_kesesuaian_sma_3.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[-8.160380205108364,109.9844280822453],[-7.461674959161482,110.8936798681298]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/qgis2web/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        L.control.zoom({ position: 'bottomright' }).addTo(map);
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // modify popup if contains media
+        function addClassToPopupIfMedia(content, popup) {
+            var tempDiv = document.createElement('div');
+            tempDiv.innerHTML = content;
+            var imgTd = tempDiv.querySelector('td img');
+            if (imgTd) {
+                var src = imgTd.getAttribute('src');
+                if (/\.(jpg|jpeg|png|gif|bmp|webp|avif)$/i.test(src)) {
+                    popup._contentNode.classList.add('media');
+                    var img = popup._contentNode.querySelector('td img');
+                    if (img) {
+                        if (img.complete && img.naturalHeight > 0) {
+                            popup.update();
+                        } else {
+                            img.addEventListener('load', function() { popup.update(); });
+                            img.addEventListener('error', function() { popup.update(); });
+                        }
+                    }
+                } else if (/\.(mp3|wav|ogg|aac)$/i.test(src)) {
+                    var audio = document.createElement('audio');
+                    audio.controls = true;
+                    audio.src = src;
+                    imgTd.parentNode.replaceChild(audio, imgTd);
+                    popup._contentNode.classList.add('media');
+                    setTimeout(function() { popup.setContent(tempDiv.innerHTML); popup.update(); }, 10);
+                } else if (/\.(mp4|webm|ogg|mov)$/i.test(src)) {
+                    var video = document.createElement('video');
+                    video.controls = true;
+                    video.src = src;
+                    video.style.width = "400px";
+                    video.style.height = "300px";
+                    video.style.maxHeight = "60vh";
+                    video.style.maxWidth = "60vw";
+                    imgTd.parentNode.replaceChild(video, imgTd);
+                    popup._contentNode.classList.add('media');
+                    video.addEventListener('loadedmetadata', function() { popup.update(); });
+                    setTimeout(function() { popup.setContent(tempDiv.innerHTML); popup.update(); }, 10);
+                } else {
+                    popup._contentNode.classList.remove('media');
+                }
+            } else {
+                popup._contentNode.classList.remove('media');
+            }
+        }
+
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {}
+
+        // tracks which feature is currently "pressed" (highlighted) per layer
+        var selectedFeatureLayer = { aksesibilitas: null, kebijakan: null, kesesuaian: null };
+        var HIGHLIGHT_STYLE = { weight: 4, color: '#c98a2b', dashArray: '' };
+        function selectFeature(key, geoLayer, featureLayer) {
+            if (selectedFeatureLayer[key] && selectedFeatureLayer[key] !== featureLayer) {
+                geoLayer.resetStyle(selectedFeatureLayer[key]);
+            }
+            featureLayer.setStyle(HIGHLIGHT_STYLE);
+            if (featureLayer.bringToFront) { featureLayer.bringToFront(); }
+            selectedFeatureLayer[key] = featureLayer;
+        }
+        function clearSelection(key, geoLayer) {
+            if (selectedFeatureLayer[key]) {
+                geoLayer.resetStyle(selectedFeatureLayer[key]);
+                selectedFeatureLayer[key] = null;
+            }
+        }
+
+        // ---------- basemap ----------
+        map.createPane('pane_GoogleHybrid_0');
+        map.getPane('pane_GoogleHybrid_0').style.zIndex = 400;
+        var layer_GoogleHybrid_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleHybrid_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        map.addLayer(layer_GoogleHybrid_0);
+
+        // ---------- layer 1: Aksesibilitas E2SFCA ----------
+        function pop_Hasil_Aksesibilitas_E2SFCA_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr><th scope="row">Kelurahan</th><td>' + (feature.properties['DESA'] !== null ? autolinker.link(String(feature.properties['DESA']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kabupaten</th><td>' + (feature.properties['KAB_KOTA'] !== null ? autolinker.link(String(feature.properties['KAB_KOTA']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kecamatan</th><td>' + (feature.properties['KECAMATAN'] !== null ? autolinker.link(String(feature.properties['KECAMATAN']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Indeks Aksesibilitas Spasial</th><td>' + (feature.properties['Indeks_Sca'] !== null ? autolinker.link(String(feature.properties['Indeks_Sca']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kategori</th><td>' + (feature.properties['Kategori'] !== null ? autolinker.link(String(feature.properties['Kategori']).toLocaleString()) : '') + '</td></tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+            layer.on('popupopen', function(e) { addClassToPopupIfMedia(content, e.popup); });
+            layer.bindPopup(content, { maxHeight: 400 });
+            layer.on('click', function(e) { selectFeature('aksesibilitas', layer_Hasil_Aksesibilitas_E2SFCA_1, e.target); });
+        }
+        function style_Hasil_Aksesibilitas_E2SFCA_1_0(feature) {
+            switch(String(feature.properties['Kategori'])) {
+                case 'Rendah': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(237,168,81,1.0)', interactive:true };
+                case 'Sangat Rendah': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(241,72,60,1.0)', interactive:true };
+                case 'Sangat Tinggi': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(20,198,28,1.0)', interactive:true };
+                case 'Sedang': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(240,245,148,1.0)', interactive:true };
+                case 'Tinggi': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(136,252,128,1.0)', interactive:true };
+            }
+        }
+        map.createPane('pane_Hasil_Aksesibilitas_E2SFCA_1');
+        map.getPane('pane_Hasil_Aksesibilitas_E2SFCA_1').style.zIndex = 401;
+        var layer_Hasil_Aksesibilitas_E2SFCA_1 = new L.geoJson(json_Hasil_Aksesibilitas_E2SFCA_1, {
+            attribution: '', interactive: true,
+            dataVar: 'json_Hasil_Aksesibilitas_E2SFCA_1', layerName: 'layer_Hasil_Aksesibilitas_E2SFCA_1',
+            pane: 'pane_Hasil_Aksesibilitas_E2SFCA_1',
+            onEachFeature: pop_Hasil_Aksesibilitas_E2SFCA_1,
+            style: style_Hasil_Aksesibilitas_E2SFCA_1_0,
+        });
+        bounds_group.addLayer(layer_Hasil_Aksesibilitas_E2SFCA_1);
+
+        // ---------- layer 2: Kebijakan Lokasi SMA ----------
+        function pop_Kebijakan_Lokasi_SMA_Desa_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr><th scope="row">Desa</th><td>' + (feature.properties['DESA'] !== null ? autolinker.link(String(feature.properties['DESA']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kabupaten</th><td>' + (feature.properties['KAB_KOTA'] !== null ? autolinker.link(String(feature.properties['KAB_KOTA']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kecamatan</th><td>' + (feature.properties['KECAMATAN'] !== null ? autolinker.link(String(feature.properties['KECAMATAN']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kategori Kesesuaian</th><td>' + (feature.properties['kelas_desa'] !== null ? autolinker.link(String(feature.properties['kelas_desa']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kategori Aksesibilitas</th><td>' + (feature.properties['Kategori'] !== null ? autolinker.link(String(feature.properties['Kategori']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kebijakan</th><td>' + (feature.properties['Kebijakan'] !== null ? autolinker.link(String(feature.properties['Kebijakan']).toLocaleString()) : '') + '</td></tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+            layer.on('popupopen', function(e) { addClassToPopupIfMedia(content, e.popup); });
+            layer.bindPopup(content, { maxHeight: 400 });
+            layer.on('click', function(e) { selectFeature('kebijakan', layer_Kebijakan_Lokasi_SMA_Desa_2, e.target); });
+        }
+        function style_Kebijakan_Lokasi_SMA_Desa_2_0(feature) {
+            switch(String(feature.properties['Kebijakan'])) {
+                case 'Kebijakan 1 (Pembangunan Sekolah Baru Segera)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(237,62,69,1.0)', interactive:true };
+                case 'Kebijakan 2 (Intervensi Transportasi & Zonasi)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(235,137,15,1.0)', interactive:true };
+                case 'Kebijakan 3 (Peningkatan Kapasitas Eksisting)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(12,175,25,1.0)', interactive:true };
+                case 'Kebijakan 4 (Cadangan Jangka Menengah)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(255,249,181,1.0)', interactive:true };
+                case 'Kebijakan 5 (Kawasan tanpa tindakan)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(115,243,79,1.0)', interactive:true };
+            }
+        }
+        map.createPane('pane_Kebijakan_Lokasi_SMA_Desa_2');
+        map.getPane('pane_Kebijakan_Lokasi_SMA_Desa_2').style.zIndex = 402;
+        var layer_Kebijakan_Lokasi_SMA_Desa_2 = new L.geoJson(json_Kebijakan_Lokasi_SMA_Desa_2, {
+            attribution: '', interactive: true,
+            dataVar: 'json_Kebijakan_Lokasi_SMA_Desa_2', layerName: 'layer_Kebijakan_Lokasi_SMA_Desa_2',
+            pane: 'pane_Kebijakan_Lokasi_SMA_Desa_2',
+            onEachFeature: pop_Kebijakan_Lokasi_SMA_Desa_2,
+            style: style_Kebijakan_Lokasi_SMA_Desa_2_0,
+        });
+        bounds_group.addLayer(layer_Kebijakan_Lokasi_SMA_Desa_2);
+
+        // ---------- layer 3: Kesesuaian Lahan ----------
+        function pop_desa_kesesuaian_sma_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr><th scope="row">Desa</th><td>' + (feature.properties['DESA'] !== null ? autolinker.link(String(feature.properties['DESA']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kabupaten</th><td>' + (feature.properties['KAB_KOTA'] !== null ? autolinker.link(String(feature.properties['KAB_KOTA']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kecamatan</th><td>' + (feature.properties['KECAMATAN'] !== null ? autolinker.link(String(feature.properties['KECAMATAN']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Indeks Kesesuaian</th><td>' + (feature.properties['skor_desa'] !== null ? autolinker.link(String(feature.properties['skor_desa']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Kategori</th><td>' + (feature.properties['kelas_desa'] !== null ? autolinker.link(String(feature.properties['kelas_desa']).toLocaleString()) : '') + '</td></tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+            layer.on('popupopen', function(e) { addClassToPopupIfMedia(content, e.popup); });
+            layer.bindPopup(content, { maxHeight: 400 });
+            layer.on('click', function(e) { selectFeature('kesesuaian', layer_desa_kesesuaian_sma_3, e.target); });
+        }
+        function style_desa_kesesuaian_sma_3_0(feature) {
+            switch(String(feature.properties['kelas_desa'])) {
+                case 'Rendah': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(255,169,54,1.0)', interactive:true };
+                case 'Sangat Rendah': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(250,56,6,1.0)', interactive:true };
+                case 'Sangat Tinggi': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(14,180,20,1.0)', interactive:true };
+                case 'Sedang': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(241,253,193,1.0)', interactive:true };
+                case 'Tinggi': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(172,240,81,1.0)', interactive:true };
+            }
+        }
+        map.createPane('pane_desa_kesesuaian_sma_3');
+        map.getPane('pane_desa_kesesuaian_sma_3').style.zIndex = 403;
+        var layer_desa_kesesuaian_sma_3 = new L.geoJson(json_desa_kesesuaian_sma_3, {
+            attribution: '', interactive: true,
+            dataVar: 'json_desa_kesesuaian_sma_3', layerName: 'layer_desa_kesesuaian_sma_3',
+            pane: 'pane_desa_kesesuaian_sma_3',
+            onEachFeature: pop_desa_kesesuaian_sma_3,
+            style: style_desa_kesesuaian_sma_3_0,
+        });
+        bounds_group.addLayer(layer_desa_kesesuaian_sma_3);
+
+        // ---------- sidebar: one layer shown at a time ----------
+        var layerConfig = {
+            aksesibilitas: {
+                layer: layer_Hasil_Aksesibilitas_E2SFCA_1,
+                legend: [
+                    ['Sangat Rendah', 'rgba(241,72,60,1.0)'],
+                    ['Rendah', 'rgba(237,168,81,1.0)'],
+                    ['Sedang', 'rgba(240,245,148,1.0)'],
+                    ['Tinggi', 'rgba(136,252,128,1.0)'],
+                    ['Sangat Tinggi', 'rgba(20,198,28,1.0)']
+                ]
+            },
+            kebijakan: {
+                layer: layer_Kebijakan_Lokasi_SMA_Desa_2,
+                legend: [
+                    ['Kebijakan 1 — Pembangunan Sekolah Baru Segera', 'rgba(237,62,69,1.0)'],
+                    ['Kebijakan 2 — Intervensi Transportasi & Zonasi', 'rgba(235,137,15,1.0)'],
+                    ['Kebijakan 3 — Peningkatan Kapasitas Eksisting', 'rgba(12,175,25,1.0)'],
+                    ['Kebijakan 4 — Cadangan Jangka Menengah', 'rgba(255,249,181,1.0)'],
+                    ['Kebijakan 5 — Kawasan Tanpa Tindakan', 'rgba(115,243,79,1.0)']
+                ]
+            },
+            kesesuaian: {
+                layer: layer_desa_kesesuaian_sma_3,
+                legend: [
+                    ['Sangat Rendah', 'rgba(250,56,6,1.0)'],
+                    ['Rendah', 'rgba(255,169,54,1.0)'],
+                    ['Sedang', 'rgba(241,253,193,1.0)'],
+                    ['Tinggi', 'rgba(172,240,81,1.0)'],
+                    ['Sangat Tinggi', 'rgba(14,180,20,1.0)']
+                ]
+            }
+        };
+
+        var legendBox = document.getElementById('legendBox');
+        var bars = document.querySelectorAll('.layer-bar');
+        var activeKey = null;
+
+        function renderLegend(key) {
+            legendBox.innerHTML = '';
+            layerConfig[key].legend.forEach(function(item) {
+                var row = document.createElement('div');
+                row.className = 'legend-row';
+                row.innerHTML = '<span class="legend-swatch" style="background:' + item[1] + '"></span><span>' + item[0] + '</span>';
+                legendBox.appendChild(row);
+            });
+        }
+
+        function activateLayer(key) {
+            if (key === activeKey) return;
+            if (activeKey) {
+                clearSelection(activeKey, layerConfig[activeKey].layer);
+                map.removeLayer(layerConfig[activeKey].layer);
+            }
+            map.addLayer(layerConfig[key].layer);
+            bars.forEach(function(b) { b.classList.toggle('active', b.dataset.layer === key); });
+            renderLegend(key);
+            activeKey = key;
+        }
+
+        bars.forEach(function(b) {
+            b.addEventListener('click', function() { activateLayer(b.dataset.layer); });
+        });
+
+        activateLayer('aksesibilitas');
+
+        document.getElementById('basemapToggle').addEventListener('change', function(e) {
+            if (e.target.checked) { map.addLayer(layer_GoogleHybrid_0); }
+            else { map.removeLayer(layer_GoogleHybrid_0); }
+        });
+
+        // ---------- mobile sidebar drawer ----------
+        var appEl = document.getElementById('app');
+        var menuToggle = document.getElementById('menuToggle');
+        var scrim = document.getElementById('scrim');
+        menuToggle.addEventListener('click', function() { appEl.classList.toggle('sidebar-open'); });
+        scrim.addEventListener('click', function() { appEl.classList.remove('sidebar-open'); });
+        bars.forEach(function(b) {
+            b.addEventListener('click', function() { appEl.classList.remove('sidebar-open'); });
+        });
+
+        setBounds();
+        setTimeout(function() { map.invalidateSize(); }, 150);
+        window.addEventListener('resize', function() { map.invalidateSize(); });
+        </script>
+    </body>
+</html>
