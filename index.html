@@ -179,6 +179,98 @@
                 border: 1px solid rgba(0,0,0,0.25);
             }
 
+            .filter-panel{
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            .filter-group{
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+                font-size: 12.5px;
+                color: var(--text);
+            }
+            .filter-group label{
+                font-weight: 600;
+                color: var(--text-muted);
+            }
+            .filter-group select,
+            .filter-group input{
+                width: 100%;
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                background: #fff;
+                color: var(--text);
+                font: inherit;
+                padding: 9px 10px;
+            }
+            .filter-group input:focus,
+            .filter-group select:focus{
+                outline: 2px solid rgba(43,110,99,0.18);
+                border-color: var(--accent);
+            }
+            .filter-actions{
+                display: flex;
+                gap: 8px;
+                margin-top: 4px;
+            }
+            .filter-btn{
+                flex: 1 1 auto;
+                border: none;
+                border-radius: 8px;
+                font: inherit;
+                font-weight: 600;
+                padding: 9px 10px;
+                cursor: pointer;
+            }
+            .filter-btn.primary{
+                background: var(--accent);
+                color: #fff;
+            }
+            .filter-btn.secondary{
+                background: #edf1ef;
+                color: var(--text);
+            }
+            .summary-box{
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .summary-total{
+                font-size: 12px;
+                color: var(--text-muted);
+                display: flex;
+                justify-content: space-between;
+                gap: 8px;
+            }
+            .summary-total strong{
+                color: var(--ink-soft);
+            }
+            .summary-item{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 8px 10px;
+                border: 1px solid var(--line);
+                border-radius: 8px;
+                background: #fff;
+            }
+            .summary-item span{
+                font-size: 12.2px;
+                color: var(--text);
+            }
+            .summary-item strong{
+                min-width: 24px;
+                text-align: center;
+                border-radius: 999px;
+                background: rgba(43,110,99,0.1);
+                color: var(--ink-soft);
+                padding: 4px 8px;
+                font-size: 11.5px;
+            }
+
             .toggle-row{
                 display: flex;
                 align-items: center;
@@ -298,13 +390,6 @@
                                 <span>Indeks jangkauan layanan SMA per desa</span>
                             </span>
                         </button>
-                        <button class="layer-bar" data-layer="kebijakan">
-                            <span class="dot"></span>
-                            <span class="txt">
-                                <strong>Kebijakan Lokasi SMA</strong>
-                                <span>Rekomendasi tindakan per desa</span>
-                            </span>
-                        </button>
                         <button class="layer-bar" data-layer="kesesuaian">
                             <span class="dot"></span>
                             <span class="txt">
@@ -312,10 +397,53 @@
                                 <span>Kelayakan lokasi pembangunan sekolah baru</span>
                             </span>
                         </button>
+                        <button class="layer-bar" data-layer="kebijakan">
+                            <span class="dot"></span>
+                            <span class="txt">
+                                <strong>Kebijakan Lokasi SMA</strong>
+                                <span>Rekomendasi tindakan per desa</span>
+                            </span>
+                        </button>
                     </div>
                     <div class="side-section">
                         <p class="side-eyebrow" id="legendTitle">Legenda</p>
                         <div id="legendBox"></div>
+                    </div>
+                    <div class="side-section">
+                        <p class="side-eyebrow">Filter &amp; pengelompokan</p>
+                        <div class="filter-panel">
+                            <div class="filter-group">
+                                <label for="kabupatenSelect">Kabupaten/Kota</label>
+                                <select id="kabupatenSelect">
+                                    <option value="Semua">Semua Kabupaten/Kota</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="kategoriSelect">Kategori</label>
+                                <select id="kategoriSelect">
+                                    <option value="Semua">Semua kategori</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="searchInput">Cari desa / kecamatan</label>
+                                <input id="searchInput" type="text" placeholder="Masukkan nama desa atau kecamatan" />
+                            </div>
+                            <div class="toggle-row">
+                                <span>Kelompokkan per kabupaten</span>
+                                <label class="switch">
+                                    <input type="checkbox" id="groupToggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="filter-actions">
+                                <button id="resetFilters" class="filter-btn secondary" type="button">Reset</button>
+                                <button id="focusKabupatenBtn" class="filter-btn primary" type="button">Fokus</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="side-section">
+                        <p class="side-eyebrow">Ringkasan</p>
+                        <div id="summaryBox" class="summary-box"></div>
                     </div>
                     <div class="side-section">
                         <div class="toggle-row">
@@ -464,11 +592,11 @@
         }
         function style_Hasil_Aksesibilitas_E2SFCA_1_0(feature) {
             switch(String(feature.properties['Kategori'])) {
-                case 'Rendah': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(237,168,81,1.0)', interactive:true };
-                case 'Sangat Rendah': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(241,72,60,1.0)', interactive:true };
-                case 'Sangat Tinggi': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(20,198,28,1.0)', interactive:true };
-                case 'Sedang': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(240,245,148,1.0)', interactive:true };
-                case 'Tinggi': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(136,252,128,1.0)', interactive:true };
+                case 'Rendah': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(237,168,81,1.0)', interactive:true };
+                case 'Sangat Rendah': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(241,72,60,1.0)', interactive:true };
+                case 'Sangat Tinggi': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(20,198,28,1.0)', interactive:true };
+                case 'Sedang': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(240,245,148,1.0)', interactive:true };
+                case 'Tinggi': return { pane:'pane_Hasil_Aksesibilitas_E2SFCA_1', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(136,252,128,1.0)', interactive:true };
             }
         }
         map.createPane('pane_Hasil_Aksesibilitas_E2SFCA_1');
@@ -499,15 +627,15 @@
         }
         function style_Kebijakan_Lokasi_SMA_Desa_3_0(feature) {
             switch(String(feature.properties['Kebijakan'])) {
-                case 'Kebijakan 1 (Pembangunan Sekolah Baru)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(223,34,26,1.0)', interactive:true };
-                case 'Kebijakan 2 (Intervensi Transportasi & Zonasi)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(244,165,56,1.0)', interactive:true };
-                case 'Kebijakan 3 (Peningkatan Kapasitas Eksisting)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(60,250,125,1.0)', interactive:true };
-                case 'Kebijakan 4 (Intervensi Terpadu)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(233,244,110,1.0)', interactive:true };
-                case 'Kebijakan 5 (Kawasan pemeliharaan)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(15,215,17,1.0)', interactive:true };
+                case 'Kebijakan 1 (Pembangunan Sekolah Baru)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(223,34,26,1.0)', interactive:true };
+                case 'Kebijakan 2 (Intervensi Transportasi & Zonasi)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(244,165,56,1.0)', interactive:true };
+                case 'Kebijakan 3 (Peningkatan Kapasitas Eksisting)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(60,250,125,1.0)', interactive:true };
+                case 'Kebijakan 4 (Intervensi Terpadu)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(233,244,110,1.0)', interactive:true };
+                case 'Kebijakan 5 (Kawasan pemeliharaan)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(15,215,17,1.0)', interactive:true };
             }
         }
         map.createPane('pane_Kebijakan_Lokasi_SMA_Desa_3');
-        map.getPane('pane_Kebijakan_Lokasi_SMA_Desa_3').style.zIndex = 402;
+        map.getPane('pane_Kebijakan_Lokasi_SMA_Desa_3').style.zIndex = 403;
         var layer_Kebijakan_Lokasi_SMA_Desa_3 = new L.geoJson(json_Kebijakan_Lokasi_SMA_Desa_3, {
             attribution: '', interactive: true,
             dataVar: 'json_Kebijakan_Lokasi_SMA_Desa_3', layerName: 'layer_Kebijakan_Lokasi_SMA_Desa_3',
@@ -533,15 +661,15 @@
         }
         function style_desa_kesesuaian_sma_2_0(feature) {
             switch(String(feature.properties['kelas_desa'])) {
-                case 'Rendah': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(255,169,54,1.0)', interactive:true };
-                case 'Sangat Rendah': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(250,56,6,1.0)', interactive:true };
-                case 'Sangat Tinggi': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(14,180,20,1.0)', interactive:true };
-                case 'Sedang': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(241,253,193,1.0)', interactive:true };
-                case 'Tinggi': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(172,240,81,1.0)', interactive:true };
+                case 'Rendah': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(255,169,54,1.0)', interactive:true };
+                case 'Sangat Rendah': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(250,56,6,1.0)', interactive:true };
+                case 'Sangat Tinggi': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(14,180,20,1.0)', interactive:true };
+                case 'Sedang': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(241,253,193,1.0)', interactive:true };
+                case 'Tinggi': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(0,0,0,0.85)', weight:2.1, fill:true, fillOpacity:0.95, fillColor:'rgba(172,240,81,1.0)', interactive:true };
             }
         }
         map.createPane('pane_desa_kesesuaian_sma_2');
-        map.getPane('pane_desa_kesesuaian_sma_2').style.zIndex = 403;
+        map.getPane('pane_desa_kesesuaian_sma_2').style.zIndex = 402;
         var layer_desa_kesesuaian_sma_2 = new L.geoJson(json_desa_kesesuaian_sma_2, {
             attribution: '', interactive: true,
             dataVar: 'json_desa_kesesuaian_sma_2', layerName: 'layer_desa_kesesuaian_sma_2',
@@ -563,16 +691,6 @@
                     ['Sangat Tinggi', 'rgba(20,198,28,1.0)']
                 ]
             },
-            kebijakan: {
-                layer: layer_Kebijakan_Lokasi_SMA_Desa_3,
-                legend: [
-                    ['Kebijakan 1 — Pembangunan Sekolah Baru', 'rgba(223,34,26,1.0)'],
-                    ['Kebijakan 2 — Intervensi Transportasi & Zonasi', 'rgba(244,165,56,1.0)'],
-                    ['Kebijakan 3 — Peningkatan Kapasitas Eksisting', 'rgba(60,250,125,1.0)'],
-                    ['Kebijakan 4 — Intervensi Terpadu', 'rgba(233,244,110,1.0)'],
-                    ['Kebijakan 5 — Kawasan Pemeliharaan', 'rgba(15,215,17,1.0)']
-                ]
-            },
             kesesuaian: {
                 layer: layer_desa_kesesuaian_sma_2,
                 legend: [
@@ -582,12 +700,103 @@
                     ['Tinggi', 'rgba(172,240,81,1.0)'],
                     ['Sangat Tinggi', 'rgba(14,180,20,1.0)']
                 ]
+            },
+            kebijakan: {
+                layer: layer_Kebijakan_Lokasi_SMA_Desa_3,
+                legend: [
+                    ['Kebijakan 1 — Pembangunan Sekolah Baru', 'rgba(223,34,26,1.0)'],
+                    ['Kebijakan 2 — Intervensi Transportasi & Zonasi', 'rgba(244,165,56,1.0)'],
+                    ['Kebijakan 3 — Peningkatan Kapasitas Eksisting', 'rgba(60,250,125,1.0)'],
+                    ['Kebijakan 4 — Intervensi Terpadu', 'rgba(233,244,110,1.0)'],
+                    ['Kebijakan 5 — Kawasan Pemeliharaan', 'rgba(15,215,17,1.0)']
+                ]
             }
         };
 
         var legendBox = document.getElementById('legendBox');
+        var summaryBox = document.getElementById('summaryBox');
+        var kabupatenSelect = document.getElementById('kabupatenSelect');
+        var kategoriSelect = document.getElementById('kategoriSelect');
+        var searchInput = document.getElementById('searchInput');
+        var groupToggle = document.getElementById('groupToggle');
         var bars = document.querySelectorAll('.layer-bar');
         var activeKey = null;
+        var filterState = {
+            kabupaten: 'Semua',
+            kategori: 'Semua',
+            search: '',
+            grouped: true
+        };
+
+        function getFeatureCategoryValue(layerKey, feature) {
+            if (!feature || !feature.properties) return '';
+            var props = feature.properties;
+            if (layerKey === 'aksesibilitas') return props.Kategori || props.kategori || '';
+            if (layerKey === 'kebijakan') return props.Kebijakan || props.kategori || '';
+            if (layerKey === 'kesesuaian') return props.kelas_desa || props.Kategori || '';
+            return '';
+        }
+
+        function matchesCurrentFilters(layerKey, feature) {
+            if (!feature || !feature.properties) return false;
+            var props = feature.properties;
+            var kabupaten = (props.KAB_KOTA || '').toString().trim();
+            var searchText = filterState.search.toLowerCase();
+
+            if (filterState.kabupaten !== 'Semua' && kabupaten.toUpperCase() !== filterState.kabupaten.toUpperCase()) {
+                return false;
+            }
+
+            if (filterState.kategori !== 'Semua') {
+                var kategoriValue = String(getFeatureCategoryValue(layerKey, feature)).trim();
+                if (kategoriValue !== filterState.kategori) {
+                    return false;
+                }
+            }
+
+            if (searchText) {
+                var haystack = [props.DESA || '', props.KECAMATAN || '', props.KAB_KOTA || '', props.Kelurahan || ''].join(' ').toLowerCase();
+                if (haystack.indexOf(searchText) === -1) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        function getLayerStyleForFeature(layerKey, feature, visible) {
+            var style = {};
+            if (layerKey === 'aksesibilitas') {
+                style = style_Hasil_Aksesibilitas_E2SFCA_1_0(feature) || {};
+            } else if (layerKey === 'kebijakan') {
+                style = style_Kebijakan_Lokasi_SMA_Desa_3_0(feature) || {};
+            } else if (layerKey === 'kesesuaian') {
+                style = style_desa_kesesuaian_sma_2_0(feature) || {};
+            }
+
+            style.stroke = true;
+            style.opacity = 1;
+            style.color = 'rgba(0,0,0,0.85)';
+            style.weight = 2.1;
+            style.fillOpacity = style.fillOpacity || 0.95;
+
+            if (!visible) {
+                style.opacity = 0;
+                style.fillOpacity = 0;
+                style.weight = 0;
+                style.color = 'rgba(0,0,0,0)';
+                style.fillColor = 'rgba(0,0,0,0)';
+                style.stroke = false;
+                style.interactive = false;
+            } else if (filterState.kabupaten !== 'Semua' && filterState.grouped) {
+                style.weight = 2.3;
+                style.color = 'rgba(15,18,16,0.9)';
+                style.opacity = 1;
+                style.fillOpacity = Math.max(style.fillOpacity || 0.95, 0.9);
+            }
+
+            return style;
+        }
 
         function renderLegend(key) {
             legendBox.innerHTML = '';
@@ -599,8 +808,133 @@
             });
         }
 
+        function renderSummary() {
+            var totalVisible = 0;
+            var groupedCounts = {};
+            var activeLayer = layerConfig[activeKey];
+
+            if (activeLayer && activeLayer.layer) {
+                activeLayer.layer.eachLayer(function(layerFeature) {
+                    if (layerFeature && layerFeature.feature && matchesCurrentFilters(activeKey, layerFeature.feature)) {
+                        totalVisible += 1;
+                        var kabupaten = (layerFeature.feature.properties.KAB_KOTA || 'Tidak diketahui').toString().trim();
+                        groupedCounts[kabupaten] = (groupedCounts[kabupaten] || 0) + 1;
+                    }
+                });
+            }
+
+            var summaryLines = [];
+            if (filterState.kabupaten === 'Semua') {
+                var entries = Object.keys(groupedCounts).sort();
+                if (!entries.length) {
+                    summaryLines.push('<div class="summary-item"><span>Tidak ada hasil</span><strong>0</strong></div>');
+                } else {
+                    entries.forEach(function(city) {
+                        summaryLines.push('<div class="summary-item"><span>' + city + '</span><strong>' + groupedCounts[city] + '</strong></div>');
+                    });
+                }
+            } else {
+                summaryLines.push('<div class="summary-item"><span>' + filterState.kabupaten + '</span><strong>' + totalVisible + '</strong></div>');
+            }
+
+            summaryBox.innerHTML = '<div class="summary-total"><span>Total terfilter</span><strong>' + totalVisible + '</strong></div>' + summaryLines.join('');
+        }
+
+        function populateKabupatenOptions() {
+            var kabupatenSet = new Set();
+            Object.keys(layerConfig).forEach(function(layerKey) {
+                layerConfig[layerKey].layer.eachLayer(function(featureLayer) {
+                    if (featureLayer && featureLayer.feature && featureLayer.feature.properties && featureLayer.feature.properties.KAB_KOTA) {
+                        kabupatenSet.add(String(featureLayer.feature.properties.KAB_KOTA).trim());
+                    }
+                });
+            });
+
+            var options = ['<option value="Semua">Semua Kabupaten/Kota</option>'];
+            Array.from(kabupatenSet).sort().forEach(function(value) {
+                options.push('<option value="' + value + '">' + value + '</option>');
+            });
+            kabupatenSelect.innerHTML = options.join('');
+            kabupatenSelect.value = filterState.kabupaten;
+        }
+
+        function populateKategoriOptions() {
+            var layerKey = activeKey || 'aksesibilitas';
+            var options = ['<option value="Semua">Semua kategori</option>'];
+            var kategoriSet = new Set();
+
+            layerConfig[layerKey].layer.eachLayer(function(featureLayer) {
+                if (featureLayer && featureLayer.feature) {
+                    var value = getFeatureCategoryValue(layerKey, featureLayer.feature);
+                    if (value) {
+                        kategoriSet.add(String(value).trim());
+                    }
+                }
+            });
+
+            Array.from(kategoriSet).sort().forEach(function(value) {
+                options.push('<option value="' + value + '">' + value + '</option>');
+            });
+            kategoriSelect.innerHTML = options.join('');
+            kategoriSelect.value = filterState.kategori;
+        }
+
+        function applyFilters() {
+            if (!activeKey || !layerConfig[activeKey]) return;
+
+            var layer = layerConfig[activeKey].layer;
+            layer.eachLayer(function(featureLayer) {
+                if (!featureLayer || !featureLayer.feature) return;
+                var visible = matchesCurrentFilters(activeKey, featureLayer.feature);
+                featureLayer.setStyle(getLayerStyleForFeature(activeKey, featureLayer.feature, visible));
+            });
+
+            renderSummary();
+        }
+
+        function focusKabupaten(selectedKabupaten) {
+            var bounds = L.latLngBounds([]);
+            var hasData = false;
+            Object.keys(layerConfig).forEach(function(layerKey) {
+                layerConfig[layerKey].layer.eachLayer(function(featureLayer) {
+                    if (!featureLayer || !featureLayer.feature || !featureLayer.feature.geometry) return;
+                    var props = featureLayer.feature.properties || {};
+                    var cityName = (props.KAB_KOTA || '').toString().trim();
+                    if (selectedKabupaten !== 'Semua' && cityName.toUpperCase() !== selectedKabupaten.toUpperCase()) {
+                        return;
+                    }
+                    if (featureLayer.getBounds) {
+                        var layerBounds = featureLayer.getBounds();
+                        if (layerBounds && layerBounds.isValid && layerBounds.isValid()) {
+                            bounds.extend(layerBounds);
+                            hasData = true;
+                        }
+                    }
+                });
+            });
+
+            if (hasData && bounds.isValid && bounds.isValid()) {
+                map.fitBounds(bounds.pad(0.18));
+            }
+        }
+
+        function resetFilters() {
+            filterState.kabupaten = 'Semua';
+            filterState.kategori = 'Semua';
+            filterState.search = '';
+            filterState.grouped = true;
+            kabupatenSelect.value = 'Semua';
+            kategoriSelect.value = 'Semua';
+            searchInput.value = '';
+            groupToggle.checked = true;
+            applyFilters();
+        }
+
         function activateLayer(key) {
-            if (key === activeKey) return;
+            if (key === activeKey) {
+                applyFilters();
+                return;
+            }
             if (activeKey) {
                 clearSelection(activeKey, layerConfig[activeKey].layer);
                 map.removeLayer(layerConfig[activeKey].layer);
@@ -609,13 +943,52 @@
             bars.forEach(function(b) { b.classList.toggle('active', b.dataset.layer === key); });
             renderLegend(key);
             activeKey = key;
+            populateKategoriOptions();
+            applyFilters();
         }
 
         bars.forEach(function(b) {
             b.addEventListener('click', function() { activateLayer(b.dataset.layer); });
         });
 
+        kabupatenSelect.addEventListener('change', function() {
+            filterState.kabupaten = this.value;
+            applyFilters();
+            if (filterState.kabupaten !== 'Semua' && groupToggle.checked) {
+                focusKabupaten(filterState.kabupaten);
+            }
+        });
+
+        kategoriSelect.addEventListener('change', function() {
+            filterState.kategori = this.value;
+            applyFilters();
+        });
+
+        searchInput.addEventListener('input', function() {
+            filterState.search = this.value.trim();
+            applyFilters();
+        });
+
+        groupToggle.addEventListener('change', function() {
+            filterState.grouped = this.checked;
+            applyFilters();
+            if (filterState.kabupaten !== 'Semua' && this.checked) {
+                focusKabupaten(filterState.kabupaten);
+            }
+        });
+
+        document.getElementById('resetFilters').addEventListener('click', resetFilters);
+        document.getElementById('focusKabupatenBtn').addEventListener('click', function() {
+            if (filterState.kabupaten === 'Semua') {
+                alert('Pilih kabupaten/kota terlebih dahulu untuk memfokuskan peta.');
+                return;
+            }
+            focusKabupaten(filterState.kabupaten);
+        });
+
         activateLayer('aksesibilitas');
+        populateKabupatenOptions();
+        renderSummary();
 
         document.getElementById('basemapToggle').addEventListener('change', function(e) {
             if (e.target.checked) { map.addLayer(layer_GoogleHybrid_0); }
