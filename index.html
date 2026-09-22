@@ -343,8 +343,8 @@
         <script src="js/labelgun.min.js"></script>
         <script src="js/labels.js"></script>
         <script src="data/Hasil_Aksesibilitas_E2SFCA_1.js"></script>
-        <script src="data/Kebijakan_Lokasi_SMA_Desa_2.js"></script>
-        <script src="data/desa_kesesuaian_sma_3.js"></script>
+        <script src="data/desa_kesesuaian_sma_2.js"></script>
+        <script src="data/Kebijakan_Lokasi_SMA_Desa_3.js"></script>
         <script>
         var map = L.map('map', {
             zoomControl:false, maxZoom:28, minZoom:1
@@ -483,42 +483,42 @@
         bounds_group.addLayer(layer_Hasil_Aksesibilitas_E2SFCA_1);
 
         // ---------- layer 2: Kebijakan Lokasi SMA ----------
-        function pop_Kebijakan_Lokasi_SMA_Desa_2(feature, layer) {
+        function pop_Kebijakan_Lokasi_SMA_Desa_3(feature, layer) {
             var popupContent = '<table>\
                     <tr><th scope="row">Desa</th><td>' + (feature.properties['DESA'] !== null ? autolinker.link(String(feature.properties['DESA']).toLocaleString()) : '') + '</td></tr>\
                     <tr><th scope="row">Kabupaten</th><td>' + (feature.properties['KAB_KOTA'] !== null ? autolinker.link(String(feature.properties['KAB_KOTA']).toLocaleString()) : '') + '</td></tr>\
                     <tr><th scope="row">Kecamatan</th><td>' + (feature.properties['KECAMATAN'] !== null ? autolinker.link(String(feature.properties['KECAMATAN']).toLocaleString()) : '') + '</td></tr>\
-                    <tr><th scope="row">Kategori Kesesuaian</th><td>' + (feature.properties['kelas_desa'] !== null ? autolinker.link(String(feature.properties['kelas_desa']).toLocaleString()) : '') + '</td></tr>\
-                    <tr><th scope="row">Kategori Aksesibilitas</th><td>' + (feature.properties['Kategori'] !== null ? autolinker.link(String(feature.properties['Kategori']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Indeks Kesesuaian Lokasi</th><td>' + (feature.properties['kelas_desa'] !== null ? autolinker.link(String(feature.properties['kelas_desa']).toLocaleString()) : '') + '</td></tr>\
+                    <tr><th scope="row">Indeks Aksesibilitas</th><td>' + (feature.properties['Kategori'] !== null ? autolinker.link(String(feature.properties['Kategori']).toLocaleString()) : '') + '</td></tr>\
                     <tr><th scope="row">Kebijakan</th><td>' + (feature.properties['Kebijakan'] !== null ? autolinker.link(String(feature.properties['Kebijakan']).toLocaleString()) : '') + '</td></tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
             layer.on('popupopen', function(e) { addClassToPopupIfMedia(content, e.popup); });
             layer.bindPopup(content, { maxHeight: 400 });
-            layer.on('click', function(e) { selectFeature('kebijakan', layer_Kebijakan_Lokasi_SMA_Desa_2, e.target); });
+            layer.on('click', function(e) { selectFeature('kebijakan', layer_Kebijakan_Lokasi_SMA_Desa_3, e.target); });
         }
-        function style_Kebijakan_Lokasi_SMA_Desa_2_0(feature) {
+        function style_Kebijakan_Lokasi_SMA_Desa_3_0(feature) {
             switch(String(feature.properties['Kebijakan'])) {
-                case 'Kebijakan 1 (Pembangunan Sekolah Baru Segera)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(237,62,69,1.0)', interactive:true };
-                case 'Kebijakan 2 (Intervensi Transportasi & Zonasi)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(235,137,15,1.0)', interactive:true };
-                case 'Kebijakan 3 (Peningkatan Kapasitas Eksisting)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(12,175,25,1.0)', interactive:true };
-                case 'Kebijakan 4 (Cadangan Jangka Menengah)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(255,249,181,1.0)', interactive:true };
-                case 'Kebijakan 5 (Kawasan tanpa tindakan)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(115,243,79,1.0)', interactive:true };
+                case 'Kebijakan 1 (Pembangunan Sekolah Baru)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(223,34,26,1.0)', interactive:true };
+                case 'Kebijakan 2 (Intervensi Transportasi & Zonasi)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(244,165,56,1.0)', interactive:true };
+                case 'Kebijakan 3 (Peningkatan Kapasitas Eksisting)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(60,250,125,1.0)', interactive:true };
+                case 'Kebijakan 4 (Intervensi Terpadu)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(233,244,110,1.0)', interactive:true };
+                case 'Kebijakan 5 (Kawasan pemeliharaan)': return { pane:'pane_Kebijakan_Lokasi_SMA_Desa_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(15,215,17,1.0)', interactive:true };
             }
         }
-        map.createPane('pane_Kebijakan_Lokasi_SMA_Desa_2');
-        map.getPane('pane_Kebijakan_Lokasi_SMA_Desa_2').style.zIndex = 402;
-        var layer_Kebijakan_Lokasi_SMA_Desa_2 = new L.geoJson(json_Kebijakan_Lokasi_SMA_Desa_2, {
+        map.createPane('pane_Kebijakan_Lokasi_SMA_Desa_3');
+        map.getPane('pane_Kebijakan_Lokasi_SMA_Desa_3').style.zIndex = 402;
+        var layer_Kebijakan_Lokasi_SMA_Desa_3 = new L.geoJson(json_Kebijakan_Lokasi_SMA_Desa_3, {
             attribution: '', interactive: true,
-            dataVar: 'json_Kebijakan_Lokasi_SMA_Desa_2', layerName: 'layer_Kebijakan_Lokasi_SMA_Desa_2',
-            pane: 'pane_Kebijakan_Lokasi_SMA_Desa_2',
-            onEachFeature: pop_Kebijakan_Lokasi_SMA_Desa_2,
-            style: style_Kebijakan_Lokasi_SMA_Desa_2_0,
+            dataVar: 'json_Kebijakan_Lokasi_SMA_Desa_3', layerName: 'layer_Kebijakan_Lokasi_SMA_Desa_3',
+            pane: 'pane_Kebijakan_Lokasi_SMA_Desa_3',
+            onEachFeature: pop_Kebijakan_Lokasi_SMA_Desa_3,
+            style: style_Kebijakan_Lokasi_SMA_Desa_3_0,
         });
-        bounds_group.addLayer(layer_Kebijakan_Lokasi_SMA_Desa_2);
+        bounds_group.addLayer(layer_Kebijakan_Lokasi_SMA_Desa_3);
 
         // ---------- layer 3: Kesesuaian Lahan ----------
-        function pop_desa_kesesuaian_sma_3(feature, layer) {
+        function pop_desa_kesesuaian_sma_2(feature, layer) {
             var popupContent = '<table>\
                     <tr><th scope="row">Desa</th><td>' + (feature.properties['DESA'] !== null ? autolinker.link(String(feature.properties['DESA']).toLocaleString()) : '') + '</td></tr>\
                     <tr><th scope="row">Kabupaten</th><td>' + (feature.properties['KAB_KOTA'] !== null ? autolinker.link(String(feature.properties['KAB_KOTA']).toLocaleString()) : '') + '</td></tr>\
@@ -529,27 +529,27 @@
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
             layer.on('popupopen', function(e) { addClassToPopupIfMedia(content, e.popup); });
             layer.bindPopup(content, { maxHeight: 400 });
-            layer.on('click', function(e) { selectFeature('kesesuaian', layer_desa_kesesuaian_sma_3, e.target); });
+            layer.on('click', function(e) { selectFeature('kesesuaian', layer_desa_kesesuaian_sma_2, e.target); });
         }
-        function style_desa_kesesuaian_sma_3_0(feature) {
+        function style_desa_kesesuaian_sma_2_0(feature) {
             switch(String(feature.properties['kelas_desa'])) {
-                case 'Rendah': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(255,169,54,1.0)', interactive:true };
-                case 'Sangat Rendah': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(250,56,6,1.0)', interactive:true };
-                case 'Sangat Tinggi': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(14,180,20,1.0)', interactive:true };
-                case 'Sedang': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(241,253,193,1.0)', interactive:true };
-                case 'Tinggi': return { pane:'pane_desa_kesesuaian_sma_3', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(172,240,81,1.0)', interactive:true };
+                case 'Rendah': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(255,169,54,1.0)', interactive:true };
+                case 'Sangat Rendah': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(250,56,6,1.0)', interactive:true };
+                case 'Sangat Tinggi': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(14,180,20,1.0)', interactive:true };
+                case 'Sedang': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(241,253,193,1.0)', interactive:true };
+                case 'Tinggi': return { pane:'pane_desa_kesesuaian_sma_2', opacity:1, color:'rgba(35,35,35,1.0)', weight:1.0, fill:true, fillOpacity:1, fillColor:'rgba(172,240,81,1.0)', interactive:true };
             }
         }
-        map.createPane('pane_desa_kesesuaian_sma_3');
-        map.getPane('pane_desa_kesesuaian_sma_3').style.zIndex = 403;
-        var layer_desa_kesesuaian_sma_3 = new L.geoJson(json_desa_kesesuaian_sma_3, {
+        map.createPane('pane_desa_kesesuaian_sma_2');
+        map.getPane('pane_desa_kesesuaian_sma_2').style.zIndex = 403;
+        var layer_desa_kesesuaian_sma_2 = new L.geoJson(json_desa_kesesuaian_sma_2, {
             attribution: '', interactive: true,
-            dataVar: 'json_desa_kesesuaian_sma_3', layerName: 'layer_desa_kesesuaian_sma_3',
-            pane: 'pane_desa_kesesuaian_sma_3',
-            onEachFeature: pop_desa_kesesuaian_sma_3,
-            style: style_desa_kesesuaian_sma_3_0,
+            dataVar: 'json_desa_kesesuaian_sma_2', layerName: 'layer_desa_kesesuaian_sma_2',
+            pane: 'pane_desa_kesesuaian_sma_2',
+            onEachFeature: pop_desa_kesesuaian_sma_2,
+            style: style_desa_kesesuaian_sma_2_0,
         });
-        bounds_group.addLayer(layer_desa_kesesuaian_sma_3);
+        bounds_group.addLayer(layer_desa_kesesuaian_sma_2);
 
         // ---------- sidebar: one layer shown at a time ----------
         var layerConfig = {
@@ -564,17 +564,17 @@
                 ]
             },
             kebijakan: {
-                layer: layer_Kebijakan_Lokasi_SMA_Desa_2,
+                layer: layer_Kebijakan_Lokasi_SMA_Desa_3,
                 legend: [
-                    ['Kebijakan 1 — Pembangunan Sekolah Baru Segera', 'rgba(237,62,69,1.0)'],
-                    ['Kebijakan 2 — Intervensi Transportasi & Zonasi', 'rgba(235,137,15,1.0)'],
-                    ['Kebijakan 3 — Peningkatan Kapasitas Eksisting', 'rgba(12,175,25,1.0)'],
-                    ['Kebijakan 4 — Cadangan Jangka Menengah', 'rgba(255,249,181,1.0)'],
-                    ['Kebijakan 5 — Kawasan Tanpa Tindakan', 'rgba(115,243,79,1.0)']
+                    ['Kebijakan 1 — Pembangunan Sekolah Baru', 'rgba(223,34,26,1.0)'],
+                    ['Kebijakan 2 — Intervensi Transportasi & Zonasi', 'rgba(244,165,56,1.0)'],
+                    ['Kebijakan 3 — Peningkatan Kapasitas Eksisting', 'rgba(60,250,125,1.0)'],
+                    ['Kebijakan 4 — Intervensi Terpadu', 'rgba(233,244,110,1.0)'],
+                    ['Kebijakan 5 — Kawasan Pemeliharaan', 'rgba(15,215,17,1.0)']
                 ]
             },
             kesesuaian: {
-                layer: layer_desa_kesesuaian_sma_3,
+                layer: layer_desa_kesesuaian_sma_2,
                 legend: [
                     ['Sangat Rendah', 'rgba(250,56,6,1.0)'],
                     ['Rendah', 'rgba(255,169,54,1.0)'],
