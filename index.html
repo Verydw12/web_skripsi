@@ -334,6 +334,8 @@
                 position: relative;
                 flex: 1 1 auto;
                 min-width: 0;
+                z-index: 1; /* membungkus map (termasuk pane Leaflet yg z-index-nya 400+) dalam stacking context sendiri, supaya tidak menutupi sidebar/topbar */
+                isolation: isolate;
             }
             #map{
                 width: 100%;
