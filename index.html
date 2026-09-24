@@ -51,7 +51,8 @@
             }
 
             #topbar{
-                flex: 0 0 var(--topbar-h);
+                flex: 0 0 auto;
+                min-height: var(--topbar-h);
                 display: flex;
                 align-items: center;
                 gap: 14px;
@@ -73,6 +74,11 @@
                 font-size: 16px;
                 cursor: pointer;
                 flex: 0 0 auto;
+                touch-action: manipulation;
+                -webkit-user-select: none;
+                user-select: none;
+                position: relative;
+                z-index: 30;
             }
             #topbar h1{
                 font-family: "Source Serif 4", Georgia, serif;
@@ -136,6 +142,9 @@
                 font-size: 13.5px;
                 color: var(--text);
                 transition: border-color .15s ease, background .15s ease;
+                touch-action: manipulation;
+                -webkit-user-select: none;
+                user-select: none;
             }
             .layer-bar:last-child{ margin-bottom: 0; }
             .layer-bar:hover{ border-color: var(--accent); }
@@ -229,6 +238,7 @@
                 font-weight: 600;
                 padding: 9px 10px;
                 cursor: pointer;
+                touch-action: manipulation;
             }
             .filter-btn.primary{
                 background: var(--accent);
@@ -375,6 +385,7 @@
                 cursor: pointer;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.14);
                 white-space: nowrap;
+                touch-action: manipulation;
             }
             .reset-view-btn:hover{ border-color: var(--accent); color: var(--accent); }
             .reset-view-btn:active{ transform: translateY(1px); }
@@ -382,10 +393,17 @@
             /* ---------- responsive: tablet & phone ---------- */
             @media (max-width: 860px){
                 :root{ --sidebar-w: 300px; }
-                #menuToggle{ display: inline-flex; align-items:center; justify-content:center; }
+                #menuToggle{
+                    display: inline-flex;
+                    align-items:center;
+                    justify-content:center;
+                    width: 44px;
+                    height: 44px;
+                    font-size: 18px;
+                }
                 #sidebar{
                     position: fixed;
-                    top: var(--topbar-h);
+                    top: calc(var(--topbar-h) + env(safe-area-inset-top, 0px));
                     bottom: 0;
                     left: 0;
                     width: var(--sidebar-w);
@@ -395,12 +413,15 @@
                     transition: transform .2s ease;
                     padding-bottom: env(safe-area-inset-bottom, 0px);
                 }
-                #app.sidebar-open #sidebar{ transform: translateX(0); }
+                #app.sidebar-open #sidebar{
+                    transform: translateX(0);
+                }
                 #app.sidebar-open #scrim{ display: block; }
                 #scrim{
                     display: none;
                     position: fixed;
-                    top: var(--topbar-h); left:0; right:0; bottom:0;
+                    top: calc(var(--topbar-h) + env(safe-area-inset-top, 0px));
+                    left:0; right:0; bottom:0;
                     background: rgba(10,15,13,0.35);
                     z-index: 14;
                 }
@@ -432,7 +453,7 @@
     <body>
         <div id="app">
             <div id="topbar">
-                <button id="menuToggle" aria-label="Buka lapisan">☰</button>
+                <button id="menuToggle" type="button" aria-label="Buka lapisan" aria-expanded="false">☰</button>
                 <div id="topbarText">
                     <h1>Aksesibilitas &amp; Kesesuaian Lokasi SMA</h1>
                     <p>Peta interaktif tiga hasil analisis spasial</p>
@@ -443,21 +464,21 @@
                 <aside id="sidebar">
                     <div class="side-section">
                         <p class="side-eyebrow">Lapisan analisis</p>
-                        <button class="layer-bar" data-layer="aksesibilitas">
+                        <button class="layer-bar" type="button" data-layer="aksesibilitas">
                             <span class="dot"></span>
                             <span class="txt">
                                 <strong>Aksesibilitas (E2SFCA)</strong>
                                 <span>Indeks jangkauan layanan SMA per desa</span>
                             </span>
                         </button>
-                        <button class="layer-bar" data-layer="kesesuaian">
+                        <button class="layer-bar" type="button" data-layer="kesesuaian">
                             <span class="dot"></span>
                             <span class="txt">
                                 <strong>Kesesuaian Lahan</strong>
                                 <span>Kelayakan lokasi pembangunan sekolah baru</span>
                             </span>
                         </button>
-                        <button class="layer-bar" data-layer="kebijakan">
+                        <button class="layer-bar" type="button" data-layer="kebijakan">
                             <span class="dot"></span>
                             <span class="txt">
                                 <strong>Kebijakan Lokasi SMA</strong>
@@ -476,6 +497,12 @@
                                 <label for="kabupatenSelect">Kabupaten/Kota</label>
                                 <select id="kabupatenSelect">
                                     <option value="Semua">Semua Kabupaten/Kota</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label for="kecamatanSelect">Kecamatan</label>
+                                <select id="kecamatanSelect">
+                                    <option value="Semua">Semua Kecamatan</option>
                                 </select>
                             </div>
                             <div class="filter-group">
@@ -767,25 +794,26 @@
         bounds_group.addLayer(layer_desa_kesesuaian_sma_2);
 
         // ---------- sidebar: one layer shown at a time ----------
+        // legenda diurutkan Sangat Tinggi -> Sangat Rendah
         var layerConfig = {
             aksesibilitas: {
                 layer: layer_Hasil_Aksesibilitas_E2SFCA_1,
                 legend: [
-                    ['Sangat Rendah', 'rgba(241,72,60,1.0)'],
-                    ['Rendah', 'rgba(237,168,81,1.0)'],
-                    ['Sedang', 'rgba(240,245,148,1.0)'],
+                    ['Sangat Tinggi', 'rgba(20,198,28,1.0)'],
                     ['Tinggi', 'rgba(136,252,128,1.0)'],
-                    ['Sangat Tinggi', 'rgba(20,198,28,1.0)']
+                    ['Sedang', 'rgba(240,245,148,1.0)'],
+                    ['Rendah', 'rgba(237,168,81,1.0)'],
+                    ['Sangat Rendah', 'rgba(241,72,60,1.0)']
                 ]
             },
             kesesuaian: {
                 layer: layer_desa_kesesuaian_sma_2,
                 legend: [
-                    ['Sangat Rendah', 'rgba(250,56,6,1.0)'],
-                    ['Rendah', 'rgba(255,169,54,1.0)'],
-                    ['Sedang', 'rgba(241,253,193,1.0)'],
+                    ['Sangat Tinggi', 'rgba(14,180,20,1.0)'],
                     ['Tinggi', 'rgba(172,240,81,1.0)'],
-                    ['Sangat Tinggi', 'rgba(14,180,20,1.0)']
+                    ['Sedang', 'rgba(241,253,193,1.0)'],
+                    ['Rendah', 'rgba(255,169,54,1.0)'],
+                    ['Sangat Rendah', 'rgba(250,56,6,1.0)']
                 ]
             },
             kebijakan: {
@@ -800,15 +828,30 @@
             }
         };
 
+        // urutan kategori Sangat Tinggi -> Sangat Rendah, dipakai juga untuk dropdown filter
+        var CATEGORY_ORDER = ['Sangat Tinggi', 'Tinggi', 'Sedang', 'Rendah', 'Sangat Rendah'];
+        function sortKategoriValues(layerKey, values) {
+            if (layerKey === 'aksesibilitas' || layerKey === 'kesesuaian') {
+                return values.slice().sort(function(a, b) {
+                    var ia = CATEGORY_ORDER.indexOf(a); if (ia === -1) ia = 999;
+                    var ib = CATEGORY_ORDER.indexOf(b); if (ib === -1) ib = 999;
+                    return ia - ib;
+                });
+            }
+            return values.slice().sort();
+        }
+
         var legendBox = document.getElementById('legendBox');
         var summaryBox = document.getElementById('summaryBox');
         var kabupatenSelect = document.getElementById('kabupatenSelect');
+        var kecamatanSelect = document.getElementById('kecamatanSelect');
         var kategoriSelect = document.getElementById('kategoriSelect');
         var searchInput = document.getElementById('searchInput');
         var bars = document.querySelectorAll('.layer-bar');
         var activeKey = null;
         var filterState = {
             kabupaten: 'Semua',
+            kecamatan: 'Semua',
             kategori: 'Semua',
             search: ''
         };
@@ -826,9 +869,14 @@
             if (!feature || !feature.properties) return false;
             var props = feature.properties;
             var kabupaten = (props.KAB_KOTA || '').toString().trim();
+            var kecamatan = (props.KECAMATAN || '').toString().trim();
             var searchText = filterState.search.toLowerCase();
 
             if (filterState.kabupaten !== 'Semua' && kabupaten.toUpperCase() !== filterState.kabupaten.toUpperCase()) {
+                return false;
+            }
+
+            if (filterState.kecamatan !== 'Semua' && kecamatan.toUpperCase() !== filterState.kecamatan.toUpperCase()) {
                 return false;
             }
 
@@ -873,7 +921,7 @@
                 style.fillColor = 'rgba(0,0,0,0)';
                 style.stroke = false;
                 style.interactive = false;
-            } else if (filterState.kabupaten !== 'Semua') {
+            } else if (filterState.kabupaten !== 'Semua' || filterState.kecamatan !== 'Semua') {
                 style.weight = 2.3;
                 style.color = 'rgba(15,18,16,0.9)';
                 style.opacity = 1;
@@ -943,6 +991,26 @@
             kabupatenSelect.value = filterState.kabupaten;
         }
 
+        function populateKecamatanOptions(kabupatenFilter) {
+            var kecSet = new Set();
+            Object.keys(layerConfig).forEach(function(layerKey) {
+                layerConfig[layerKey].layer.eachLayer(function(featureLayer) {
+                    if (!featureLayer || !featureLayer.feature || !featureLayer.feature.properties) return;
+                    var props = featureLayer.feature.properties;
+                    var kab = (props.KAB_KOTA || '').toString().trim();
+                    if (kabupatenFilter && kabupatenFilter !== 'Semua' && kab.toUpperCase() !== kabupatenFilter.toUpperCase()) return;
+                    if (props.KECAMATAN) kecSet.add(String(props.KECAMATAN).trim());
+                });
+            });
+
+            var options = ['<option value="Semua">Semua Kecamatan</option>'];
+            Array.from(kecSet).sort().forEach(function(value) {
+                options.push('<option value="' + value + '">' + value + '</option>');
+            });
+            kecamatanSelect.innerHTML = options.join('');
+            kecamatanSelect.value = filterState.kecamatan;
+        }
+
         function populateKategoriOptions() {
             var layerKey = activeKey || 'aksesibilitas';
             var options = ['<option value="Semua">Semua kategori</option>'];
@@ -957,7 +1025,7 @@
                 }
             });
 
-            Array.from(kategoriSet).sort().forEach(function(value) {
+            sortKategoriValues(layerKey, Array.from(kategoriSet)).forEach(function(value) {
                 options.push('<option value="' + value + '">' + value + '</option>');
             });
             kategoriSelect.innerHTML = options.join('');
@@ -977,17 +1045,19 @@
             renderSummary();
         }
 
-        function focusKabupaten(selectedKabupaten) {
+        function focusByFilter(matchField, matchValue) {
             var bounds = L.latLngBounds([]);
             var hasData = false;
             Object.keys(layerConfig).forEach(function(layerKey) {
                 layerConfig[layerKey].layer.eachLayer(function(featureLayer) {
                     if (!featureLayer || !featureLayer.feature || !featureLayer.feature.geometry) return;
                     var props = featureLayer.feature.properties || {};
-                    var cityName = (props.KAB_KOTA || '').toString().trim();
-                    if (selectedKabupaten !== 'Semua' && cityName.toUpperCase() !== selectedKabupaten.toUpperCase()) {
-                        return;
-                    }
+                    var kab = (props.KAB_KOTA || '').toString().trim();
+                    var kec = (props.KECAMATAN || '').toString().trim();
+
+                    if (filterState.kabupaten !== 'Semua' && kab.toUpperCase() !== filterState.kabupaten.toUpperCase()) return;
+                    if (filterState.kecamatan !== 'Semua' && kec.toUpperCase() !== filterState.kecamatan.toUpperCase()) return;
+
                     if (featureLayer.getBounds) {
                         var layerBounds = featureLayer.getBounds();
                         if (layerBounds && layerBounds.isValid && layerBounds.isValid()) {
@@ -999,17 +1069,20 @@
             });
 
             if (hasData && bounds.isValid && bounds.isValid()) {
-                map.flyToBounds(bounds.pad(0.18), { duration: 0.7 });
+                map.flyToBounds(bounds.pad(0.2), { duration: 0.7 });
             }
         }
 
         function resetFilters() {
             filterState.kabupaten = 'Semua';
+            filterState.kecamatan = 'Semua';
             filterState.kategori = 'Semua';
             filterState.search = '';
             kabupatenSelect.value = 'Semua';
+            kecamatanSelect.value = 'Semua';
             kategoriSelect.value = 'Semua';
             searchInput.value = '';
+            populateKecamatanOptions('Semua');
             applyFilters();
         }
 
@@ -1030,15 +1103,47 @@
             applyFilters();
         }
 
+        // ---------- pengikat event yang aman untuk semua perangkat ----------
+        // beberapa webview mobile menangani 'click' setelah transisi CSS secara tidak
+        // konsisten; fungsi ini mengikat click & touchend sekaligus dengan penjagaan
+        // supaya tidak terpicu dua kali (double-fire) pada perangkat yang sama.
+        function bindActivate(el, handler) {
+            var lastFired = 0;
+            function fire(e) {
+                var now = Date.now();
+                if (now - lastFired < 350) return;
+                lastFired = now;
+                handler(e);
+            }
+            el.addEventListener('click', fire);
+            el.addEventListener('touchend', function(e) {
+                e.preventDefault();
+                fire(e);
+            }, { passive: false });
+        }
+
         bars.forEach(function(b) {
-            b.addEventListener('click', function() { activateLayer(b.dataset.layer); });
+            bindActivate(b, function() {
+                activateLayer(b.dataset.layer);
+                appEl.classList.remove('sidebar-open');
+            });
         });
 
         kabupatenSelect.addEventListener('change', function() {
             filterState.kabupaten = this.value;
+            filterState.kecamatan = 'Semua';
+            populateKecamatanOptions(filterState.kabupaten);
             applyFilters();
             if (filterState.kabupaten !== 'Semua') {
-                focusKabupaten(filterState.kabupaten);
+                focusByFilter();
+            }
+        });
+
+        kecamatanSelect.addEventListener('change', function() {
+            filterState.kecamatan = this.value;
+            applyFilters();
+            if (filterState.kecamatan !== 'Semua') {
+                focusByFilter();
             }
         });
 
@@ -1056,6 +1161,7 @@
 
         activateLayer('aksesibilitas');
         populateKabupatenOptions();
+        populateKecamatanOptions('Semua');
         renderSummary();
 
         document.getElementById('basemapToggle').addEventListener('change', function(e) {
@@ -1067,10 +1173,14 @@
         var appEl = document.getElementById('app');
         var menuToggle = document.getElementById('menuToggle');
         var scrim = document.getElementById('scrim');
-        menuToggle.addEventListener('click', function() { appEl.classList.toggle('sidebar-open'); });
-        scrim.addEventListener('click', function() { appEl.classList.remove('sidebar-open'); });
-        bars.forEach(function(b) {
-            b.addEventListener('click', function() { appEl.classList.remove('sidebar-open'); });
+
+        bindActivate(menuToggle, function() {
+            var isOpen = appEl.classList.toggle('sidebar-open');
+            menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+        bindActivate(scrim, function() {
+            appEl.classList.remove('sidebar-open');
+            menuToggle.setAttribute('aria-expanded', 'false');
         });
 
         setBounds();
